@@ -1,4 +1,4 @@
-; This files requires the NSIS Simple Service plugin from
+; This file requires the NSIS Simple Service plugin from
 ; https://nsis.sourceforge.io/NSIS_Simple_Service_Plugin.
 ; Its SimpleSC.dll must be copied into NSIS\Plugins\x86-ansi.
 ; (There is not yet a Unicode version of this plugin.)
@@ -37,7 +37,7 @@ Function .onInit
         ${Else}
             StrCpy $0 "It seems ${SERVICE_DISPLAY_NAME} is already installed at version $PrevVersion. Do you want to update to ${SERVICE_VERSION}?"
         ${EndIf}
-        ${If} ${Cmd} `MessageBox MB_YESNO|MB_ICONQUESTION "$0" IDNO`
+        ${If} ${Cmd} `MessageBox MB_YESNO|MB_ICONQUESTION "$0" /SD IDYES IDNO`
             Abort
         ${EndIf}
     ${EndIf}
@@ -171,7 +171,7 @@ FunctionEnd
 
 Function AbortInstallation
     Pop $0
-    MessageBox MB_OK|MB_ICONSTOP $0
+    MessageBox MB_OK|MB_ICONSTOP "$0"
     ExecWait $ThisVersionUninstallCmdLine
     Delete "$INSTDIR\${SERVICE_VERSION}\uninstall.exe"
     DetailPrint "$0."
