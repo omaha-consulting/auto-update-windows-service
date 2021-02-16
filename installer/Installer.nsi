@@ -14,17 +14,38 @@
 !define UNINSTALL_REG_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${SERVICE_DISPLAY_NAME}"
 
 !include LogicLib.nsh
+!include "MUI.nsh"
 !include Try.nsh
 
 OutFile "OmahaDemoServiceSetup.exe"
 InstallDir "$PROGRAMFILES\${SERVICE_DISPLAY_NAME}"
 InstallDirRegKey HKLM "${UNINSTALL_REG_KEY}" InstallLocation
-Name "${SERVICE_DISPLAY_NAME} ${SERVICE_VERSION}"
+Name "${SERVICE_DISPLAY_NAME}"
 RequestExecutionLevel admin
 
 Var PrevVersion
 Var PrevVersionUninstallCmdLine
 Var ThisVersionUninstallCmdLine
+
+!define MUI_WELCOMEPAGE_TITLE "Welcome!"
+!define MUI_WELCOMEPAGE_TEXT "This wizard installs Omaha Demo Service ${SERVICE_VERSION}.\r\n\r\nThe Service will appear in:\r\n\r\n1) Its log file C:\OmahaDemoService.log,\r\n2) Services.msc,\r\n3) Add/Remove Programs.\r\n\r\nClick Install to get started."
+!insertmacro MUI_PAGE_WELCOME
+
+!insertmacro MUI_PAGE_INSTFILES
+
+!define MUI_FINISHPAGE_RUN "notepad.exe"
+!define MUI_FINISHPAGE_RUN_PARAMETERS "C:\OmahaDemoService.log"
+!define MUI_FINISHPAGE_RUN_TEXT "Show the Service's log file"
+!insertmacro MUI_PAGE_FINISH
+
+!define MUI_WELCOMEPAGE_TITLE "Uninstall Omaha Demo Service"
+!define MUI_WELCOMEPAGE_TEXT "This will remove all remnants of Omaha Demo Service from your system.\r\n\r\nClick Uninstall to start the uninstallation."
+!insertmacro MUI_UNPAGE_WELCOME
+
+!define MUI_UNFINISHPAGE_NOAUTOCLOSE
+!insertmacro MUI_UNPAGE_INSTFILES
+
+!insertmacro MUI_LANGUAGE "English"
 
 Function .onInit
     ReadRegStr $PrevVersion HKLM "${UNINSTALL_REG_KEY}" "DisplayVersion"
@@ -218,10 +239,10 @@ Function DeleteOldVersion
 FunctionEnd
 
 Section "uninstall"
-    DetailPrint "Stopping ${SERVICE_DISPLAY_NAME} ${SERVICE_VERSION}."
+    DetailPrint "Stopping ${SERVICE_DISPLAY_NAME}."
     Call un.StopService
     Pop $0
-    DetailPrint "Removing ${SERVICE_DISPLAY_NAME} ${SERVICE_VERSION}."
+    DetailPrint "Removing ${SERVICE_DISPLAY_NAME}."
     Call un.RemoveService
     Pop $0
     ; Note that $INSTDIR here is not the same as $INSTDIR above. In the
