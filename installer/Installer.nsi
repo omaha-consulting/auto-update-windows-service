@@ -15,7 +15,7 @@
 ; more complex logic than the bare minimum and extracting some files, you will
 ; need to extend the code below. Fortunately, NSIS makes most common tasks easy.
 
-; As you can see in the code below, the installer first checks in the registry
+; As you can see in .onInit below, the installer first checks in the registry
 ; whether a previous version is already installed. If yes, it prompts the user
 ; whether they want to override the existing version. In silent mode
 ; (command-line flag /S), this consent is always assumed. Then, the installer
@@ -23,10 +23,10 @@
 ; (function UpdateExistingInstallation).
 
 ; All steps of the installer are carefully designed to be resilient to failures.
-; As you can see in the functions that were just mentioned, each step also comes
-; with a "rollback" function that cleans up the system in case of an error.
-; For example, if the installer fails to create the uninstaller, then it cleans
-; it up in function RollbackUninstaller.
+; As you can see in the functions that were just mentioned, each step comes with
+; a "rollback" function that cleans up the system in case of an error. For
+; example, if the installer fails to create the uninstaller, then it cleans it
+; up in function RollbackUninstaller.
 
 !define SERVICE_NAME "OmahaDemoService"
 !define SERVICE_VERSION "0.0.0.2"
