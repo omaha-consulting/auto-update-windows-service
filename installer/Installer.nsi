@@ -1,8 +1,8 @@
 ; This file produces an installer for the Windows Service in the service/
 ; directory in this repository. Importantly, the installer contains the logic
-; for gracefully updating a Windows Service. The installer also supports silent
-; installation via the `/S` flag, which important for compatibility with Google
-; Omaha.
+; for updating the Service gracefully by first stopping the old version.
+; The installer also supports silent installation via the `/S` flag, which is
+; important for compatibility with Google Omaha.
 
 ; This file was developed with NSIS 3.06.1. It requires the NSIS Simple Service
 ; plugin from https://nsis.sourceforge.io/NSIS_Simple_Service_Plugin. This
