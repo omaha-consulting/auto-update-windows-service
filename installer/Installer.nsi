@@ -11,6 +11,8 @@
 !define SERVICE_START_TIMEOUT 30
 !define SERVICE_STOP_TIMEOUT 30
 
+!define OMAHA_REG_KEY "Software\OmahaTutorial\Update"
+!define OMAHA_APP_ID "{C48667BA-C57A-4DFE-B219-6DB6C466E2CA}"
 !define UNINSTALL_REG_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${SERVICE_DISPLAY_NAME}"
 
 !include LogicLib.nsh
@@ -86,6 +88,8 @@ Function PerformInitialInstall
         ${Try} ExtractFiles
           ${Try} InstallService
             ${Try} StartService
+              ${Try} SetOmahaRegistryKeys
+              ${OnError} DeleteOmahaRegistryKeys
             ${OnError} StopService
           ${OnError} RemoveService
         ${OnError} DeleteExtractedFiles
@@ -101,7 +105,9 @@ Function UpdateExistingInstallation
           ${Try} UpdateServicePath
             ${Try} StartService
               ${Try} SetUninstallRegistryKeys
-                Call DeleteOldVersion
+                ${Try} SetOmahaRegistryKeys
+                  Call DeleteOldVersion
+                ${OnError} RevertOmahaRegistryKeys
               ${OnError} RevertUninstallRegistryKeys
             ${OnError} StopService
           ${OnError} RestoreServicePath
@@ -149,6 +155,29 @@ FunctionEnd
 
 Function DeleteUninstallRegistryKeys
     DeleteRegKey HKLM "${UNINSTALL_REG_KEY}"
+FunctionEnd
+
+Function SetOmahaRegistryKeys
+    WriteRegStr HKLM "${OMAHA_REG_KEY}\Clients\${OMAHA_APP_ID}" "name" "${SERVICE_DISPLAY_NAME}"
+    WriteRegStr HKLM "${OMAHA_REG_KEY}\Clients\${OMAHA_APP_ID}" "pv" "${SERVICE_VERSION}"
+    ${If} ${Errors}
+        Push "Could not set registry keys."
+        SetErrors
+    ${EndIf}
+FunctionEnd
+
+Function RevertOmahaRegistryKeys
+    WriteRegStr HKLM "${OMAHA_REG_KEY}\Clients\${OMAHA_APP_ID}" "pv" "$PrevVersion"
+    ${If} ${Errors}
+        Push "Could not set registry keys."
+        SetErrors
+    ${EndIf}
+FunctionEnd
+
+Function DeleteOmahaRegistryKeys
+    DeleteRegKey HKLM "${OMAHA_REG_KEY}\Clients\${OMAHA_APP_ID}"
+    DeleteRegKey /ifempty HKLM "${OMAHA_REG_KEY}\Clients"
+    DeleteRegKey /ifempty HKLM "${OMAHA_REG_KEY}"
 FunctionEnd
 
 Function ExtractFiles
@@ -252,11 +281,18 @@ Section "uninstall"
     RMDIR /r "$INSTDIR"
     DetailPrint "Removing $INSTDIR\.."
     RMDIR "$INSTDIR\.."
+    Call un.DeleteOmahaRegistryKeys
     Call un.DeleteUninstallRegistryKeys
 SectionEnd
 
 Function un.DeleteUninstallRegistryKeys
     DeleteRegKey HKLM "${UNINSTALL_REG_KEY}"
+FunctionEnd
+
+Function un.DeleteOmahaRegistryKeys
+    DeleteRegKey HKLM "${OMAHA_REG_KEY}\Clients\${OMAHA_APP_ID}"
+    DeleteRegKey /ifempty HKLM "${OMAHA_REG_KEY}\Clients"
+    DeleteRegKey /ifempty HKLM "${OMAHA_REG_KEY}"
 FunctionEnd
 
 Function un.StopService
