@@ -19,7 +19,7 @@
 !include "MUI.nsh"
 !include Try.nsh
 
-OutFile "OmahaDemoServiceSetup.exe"
+OutFile "install-${SERVICE_VERSION}.exe"
 InstallDir "$PROGRAMFILES\${SERVICE_DISPLAY_NAME}"
 InstallDirRegKey HKLM "${UNINSTALL_REG_KEY}" InstallLocation
 Name "${SERVICE_DISPLAY_NAME}"
