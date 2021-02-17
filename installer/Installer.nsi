@@ -4,7 +4,7 @@
 ; (There is not yet a Unicode version of this plugin.)
 
 !define SERVICE_NAME "OmahaDemoService"
-!define SERVICE_VERSION "0.0.0.1"
+!define SERVICE_VERSION "0.0.0.2"
 !define SERVICE_DISPLAY_NAME "Omaha Demo Service"
 !define SERVICE_EXECUTABLE "OmahaDemoService.exe"
 !define SERVICE_FILES "..\service\bin\Release\OmahaDemoService.exe"
