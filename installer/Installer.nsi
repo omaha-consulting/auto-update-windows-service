@@ -1,12 +1,38 @@
-; This file requires the NSIS Simple Service plugin from
-; https://nsis.sourceforge.io/NSIS_Simple_Service_Plugin.
-; Its SimpleSC.dll must be copied into NSIS\Plugins\x86-ansi.
-; (There is not yet a Unicode version of this plugin.)
+; This file produces an installer for the Windows Service in the service/
+; directory in this repository. Importantly, the installer contains the logic
+; for gracefully updating a Windows Service. The installer also supports silent
+; installation via the `/S` flag, which important for compatibility with Google
+; Omaha.
+
+; This file was developed with NSIS 3.06.1. It requires the NSIS Simple Service
+; plugin from https://nsis.sourceforge.io/NSIS_Simple_Service_Plugin. This
+; plugin does not yet offer a Unicode version (and likely never will). For this
+; reason, you need to copy its SimpleSC.dll file into NSIS\Plugins\x86-ansi.
+
+; You can use this file to create an Omaha-compatible installer for your own
+; Windows Service. In the simplest case, it will be enough to change the
+; constants below. If installing / updating / uninstalling your Service needs
+; more complex logic than the bare minimum and extracting some files, you will
+; need to extend the code below. Fortunately, NSIS makes most common tasks easy.
+
+; As you can see in the code below, the installer first checks in the registry
+; whether a previous version is already installed. If yes, it prompts the user
+; whether they want to override the existing version. In silent mode
+; (command-line flag /S), this consent is always assumed. Then, the installer
+; either performs a clean install (function PerformInitialInstall) or an update
+; (function UpdateExistingInstallation).
+
+; All steps of the installer are carefully designed to be resilient to failures.
+; As you can see in the functions that were just mentioned, each step also comes
+; with a "rollback" function that cleans up the system in case of an error.
+; For example, if the installer fails to create the uninstaller, then it cleans
+; it up in function RollbackUninstaller.
 
 !define SERVICE_NAME "OmahaDemoService"
 !define SERVICE_VERSION "0.0.0.2"
 !define SERVICE_DISPLAY_NAME "Omaha Demo Service"
 !define SERVICE_EXECUTABLE "OmahaDemoService.exe"
+; Note: This constant can end in \* to include all files in a directory.
 !define SERVICE_FILES "..\service\bin\Release\OmahaDemoService.exe"
 !define SERVICE_START_TIMEOUT 30
 !define SERVICE_STOP_TIMEOUT 30
