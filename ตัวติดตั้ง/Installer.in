@@ -79,7 +79,7 @@ Var ThisVersionUninstallCmdLine
 Function .onInit
     ReadRegStr $PrevVersion HKLM "${UNINSTALL_REG_KEY}" "DisplayVersion"
     ReadRegStr $PrevVersionUninstallCmdLine HKLM "${UNINSTALL_REG_KEY}" "QuietUninstallString"
-    ${IfNot} ${Errors}
+    ${IfNot} 
         ${If} $PrevVersion == ""
             StrCpy $0 "It seems ${SERVICE_DISPLAY_NAME} is already installed. Do you want to re-install version ${SERVICE_VERSION}?"
         ${ElseIf} $PrevVersion == ${SERVICE_VERSION}
